@@ -24,7 +24,7 @@
     </Inf>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="STKE.cpp">
+    <ClCompile Include="STKE.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
