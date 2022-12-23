@@ -75,8 +75,12 @@ int main(void)
             case 1:
                 ListDrivers();
                 break;
+
+            //TODO: add case 2 for load driver
             }
 
         }
     }
+
+    return 0;
 }

@@ -6,13 +6,14 @@ This driver is not used for anything yet.
 #include <stdio.h>
 #include "STKE.h"
 
+#define IOCTL_STKE_LOAD_DRIVER CTL_CODE(FILE_DEVICE_UNKNOWN, 0x801, METHOD_BUFFERED, FILE_ANY_ACCESS)
+
 #define DEVICE_NAME L"\\Device\\STKE"
 #define SYM_LINK L"\\??\\STKE"
 
 void stkeUnload(PDRIVER_OBJECT DriverObject);
 DRIVER_DISPATCH stkeCreateClose, stkeDeviceControl;
 
-extern "C" NTSTATUS
 DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 {
 	UNREFERENCED_PARAMETER(RegistryPath);
@@ -24,9 +25,9 @@ DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 	DriverObject->MajorFunction[IRP_MJ_CREATE] = DriverObject->MajorFunction[IRP_MJ_CLOSE] = stkeCreateClose;
 	DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = stkeDeviceControl;
 
-	PDEVICE_OBJECT DeviceObject = nullptr;
+	PDEVICE_OBJECT DeviceObject = NULL;
 	auto status = STATUS_SUCCESS;
-	auto symLinkCreated = false;
+	auto symLinkCreated = FALSE;
 
 	do 
 	{
@@ -43,13 +44,13 @@ DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 			KdPrint(("Failed to create symbolic link (0x%08X)\n", status));
 			break;
 		}
-		symLinkCreated = true;
-	} while (false);
+		symLinkCreated = TRUE;
+	} while (FALSE);
 
 	return status;
 }
 
-NTSTATUS CompleteIrp(PIRP Irp, NTSTATUS status = STATUS_SUCCESS, ULONG_PTR info = 0)
+NTSTATUS CompleteIrp(PIRP Irp, NTSTATUS status , ULONG_PTR info)
 {
 	Irp->IoStatus.Status = status;
 	Irp->IoStatus.Information = info;
@@ -65,3 +66,21 @@ void stkeUnload(PDRIVER_OBJECT DriverObject)
 	IoDeleteDevice(DriverObject->DeviceObject);
 }
 
+NTSTATUS stkeDeviceControl(PDEVICE_OBJECT DeviceObject, PIRP Irp)
+{
+	PIO_STACK_LOCATION stack = IoGetCurrentIrpStackLocation(Irp);
+	
+	if (stack->Parameters.DeviceIoControl.IoControlCode == IOCTL_STKE_LOAD_DRIVER)
+	{
+		// TODO: implement ZwLoadDriver
+		PUNICODE_STRING driverName;
+		RtlInitUnicodeString(driverName, Irp->AssociatedIrp.SystemBuffer);
+
+
+	}
+	else
+	{
+		return CompleteIrp(Irp, STATUS_INVALID_DEVICE_REQUEST, 0);
+	}
+
+}

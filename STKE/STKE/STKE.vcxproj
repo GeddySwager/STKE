@@ -93,7 +93,7 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="STKE.cpp" />
+    <ClCompile Include="STKE.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="STKE.h" />
