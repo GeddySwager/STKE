@@ -1,11 +1,11 @@
 /*
-This program will eventually interact with the kernel driver, right now it just lists drivers.
+This program is used to interact with its corresponding kernel driver.
 */
 
 #include <windows.h>
 #include <psapi.h>
 #include <tchar.h>
-#include <iostream>
+#include <stdio.h>
 #include <Shlwapi.h>
 
 // To ensure correct resolution of symbols, add Psapi.lib to TARGETLIBS
@@ -43,7 +43,7 @@ int ListDrivers()
     }
     else
     {
-        _tprintf(TEXT("EnumDeviceDrivers failed; array size needed is %d\n"), cbNeeded / sizeof(LPVOID));
+        _tprintf(TEXT("EnumDeviceDrivers failed; array size needed is %d\n"), (int) (cbNeeded / sizeof(LPVOID)));
         return 1;
     }
 
@@ -95,7 +95,7 @@ int loadDriver()
             }
         }
     }
-    printf("Driver found! Returning to start menu as feature is not finished.\n", regPath);
+    printf("Driver found! Returning to start menu as feature is not finished.\n");
     return 0;
 }
 
@@ -109,7 +109,7 @@ int main(void)
         printf("1. List all installed or running drivers\n");
         printf("2. Load driver\n");
         printf("0. Stop program\n");
-        std::cin >> option;
+        wscanf_s(L"%d", &option);
 
         if (option > 2)
         {
@@ -130,7 +130,6 @@ int main(void)
             case 2:
                 loadDriver();
                 break;
-            //TODO: add case 2 for load driver
             }
 
         }
