@@ -22,11 +22,7 @@ DefaultDestDir = 13
 
 [SourceDisksFiles]
 
-
 [Manufacturer]
-%ManufacturerName%=Standard,NT$ARCH$
-
-[Standard.NT$ARCH$]
 
 
 [Strings]

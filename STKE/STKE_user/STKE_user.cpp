@@ -6,6 +6,7 @@ This program will eventually interact with the kernel driver, right now it just 
 #include <psapi.h>
 #include <tchar.h>
 #include <iostream>
+#include <Shlwapi.h>
 
 // To ensure correct resolution of symbols, add Psapi.lib to TARGETLIBS
 // and compile with -DPSAPI_VERSION=1
@@ -49,6 +50,55 @@ int ListDrivers()
     return 0;
 }
 
+int endsWithSys(WCHAR* string)
+{
+    string = StrRChrW(string, NULL, L'.');
+    if (string != NULL)
+    {
+        return(wcscmp(string, L".sys"));
+    }
+    return(-1);
+}
+
+int loadDriver()
+{
+    printf("Type out the full path to the driver, including driver name (example \"C:\\Users\\vagrant\\desktop\\driver.sys\")\n");
+    WCHAR regPath[MAX_PATH] = { 0 };
+
+    while (TRUE)
+    {
+        int status = wscanf_s(L"%s", regPath, (MAX_PATH - 1));
+        if (!status || status == EOF)
+        {
+            printf("Windows accepts a maximum path of 260 characters.\n");
+        }
+        else if (!wcscmp(regPath, L"q"))
+        {
+            printf("Exiting.\n");
+            return -1;
+        }
+        else if (endsWithSys(regPath))
+        {
+            printf("Your path either did not end with \'.sys\' or was null.\n");
+        }
+        else
+        {
+            DWORD dwAttrib = GetFileAttributes(regPath);
+            if (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY))
+            {
+                if (regPath)
+                break;
+            }
+            else
+            {
+                printf("Invalid input, file either does not exist or you have input a directory instead of a file.\n");
+            }
+        }
+    }
+    printf("Driver found! Returning to start menu as feature is not finished.\n", regPath);
+    return 0;
+}
+
 
 int main(void)
 {
@@ -57,10 +107,11 @@ int main(void)
     {
         printf("\nSTKE available functions:\n");
         printf("1. List all installed or running drivers\n");
-        printf("2. Stop program\n");
+        printf("2. Load driver\n");
+        printf("0. Stop program\n");
         std::cin >> option;
 
-        if (option > 1)
+        if (option > 2)
         {
             printf("\nPlease select from the available options.\n");
         }
@@ -76,6 +127,9 @@ int main(void)
                 ListDrivers();
                 break;
 
+            case 2:
+                loadDriver();
+                break;
             //TODO: add case 2 for load driver
             }
 

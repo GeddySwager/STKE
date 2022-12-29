@@ -31,7 +31,7 @@ DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 
 	do 
 	{
-		status = IoCreateDevice(DriverObject, sizeof(EXTRA_SPACE), &deviceName, FILE_DEVICE_UNKNOWN, FILE_DEVICE_SECURE_OPEN, FALSE, &DeviceObject);
+		status = IoCreateDevice(DriverObject, sizeof(UNICODE_STRING), &deviceName, FILE_DEVICE_UNKNOWN, FILE_DEVICE_SECURE_OPEN, FALSE, &DeviceObject);
 		if (!NT_SUCCESS(status))
 		{
 			KdPrint(("Failed to create device (0x%08X)\n", status));
@@ -58,6 +58,13 @@ NTSTATUS CompleteIrp(PIRP Irp, NTSTATUS status , ULONG_PTR info)
 	return status;
 }
 
+NTSTATUS stkeCreateClose(PDEVICE_OBJECT DeviceObject, PIRP Irp) 
+{
+	UNREFERENCED_PARAMETER(DeviceObject);
+	NTSTATUS status = STATUS_NOT_SUPPORTED;
+	return CompleteIrp(Irp, status, 0);
+}
+
 void stkeUnload(PDRIVER_OBJECT DriverObject)
 {
 	UNICODE_STRING symLink;
@@ -68,15 +75,17 @@ void stkeUnload(PDRIVER_OBJECT DriverObject)
 
 NTSTATUS stkeDeviceControl(PDEVICE_OBJECT DeviceObject, PIRP Irp)
 {
+	UNREFERENCED_PARAMETER(DeviceObject);
 	PIO_STACK_LOCATION stack = IoGetCurrentIrpStackLocation(Irp);
 	
 	if (stack->Parameters.DeviceIoControl.IoControlCode == IOCTL_STKE_LOAD_DRIVER)
 	{
 		// TODO: implement ZwLoadDriver
-		PUNICODE_STRING driverName;
-		RtlInitUnicodeString(driverName, Irp->AssociatedIrp.SystemBuffer);
+		UNICODE_STRING driverName;
+		RtlInitUnicodeString(&driverName, Irp->AssociatedIrp.SystemBuffer);
 
-
+		NTSTATUS status = ZwLoadDriver(&driverName);
+		return CompleteIrp(Irp, status, 0);
 	}
 	else
 	{
