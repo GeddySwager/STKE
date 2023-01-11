@@ -236,10 +236,11 @@ int loadDriver()
     {
         return Error(L"Subkey and driver name concatenation failed.\n");
     }
-    printf("Test: %ws\n", subKey);
+    printf("Registry subkey will be set to: %ws\n", subKey);
 
     WCHAR keyValue1[] = L"ImagePath";
     WCHAR keyValue2[] = L"Type";
+    DWORD keyValue2Data = 1;
 
     WCHAR keyData[MAX_PATH + 5];
     ZeroMemory(keyData, sizeof(keyData));
@@ -251,15 +252,34 @@ int loadDriver()
     {
         return Error(L"Global root and regPath concatenation failed.\n");
     }
-    printf("Test: %ws\n", keyData);
+    printf("Registry key \"ImagePath\" will be set to: %ws\n", keyData);
 
 
 
-    RegCreateKeyExW(HKEY_LOCAL_MACHINE, subKey, 0, NULL, keyOptions, KEY_ALL_ACCESS | KEY_WOW64_64KEY, NULL, &key, NULL);
-    Error(L"Failed to create registry key");
+    LSTATUS status = RegCreateKeyExW(HKEY_LOCAL_MACHINE, subKey, 0, NULL, keyOptions, KEY_ALL_ACCESS | KEY_WOW64_64KEY, NULL, &key, NULL);
+    
+    if (status != ERROR_SUCCESS)
+    {
+        printf("RegCreateKeyExW returned error code: %d \n Make sure to run the program as admin.\n", status);
+        return 1;
+    }
 
+    status = RegSetKeyValueW(key, NULL, keyValue1, REG_SZ, keyData, sizeof(keyData));
+    if (status != ERROR_SUCCESS)
+    {
+        printf("RegSetKeyValueW for \"ImagePath\" returned error code: %d \n", status);
+        return 1;
+    }
 
-    //status = RegSetKeyValueW(key, NULL, )
+    status = RegSetKeyValueW(key, NULL, keyValue2, REG_DWORD, &keyValue2Data, sizeof(DWORD));
+    if (status != ERROR_SUCCESS)
+    {
+        printf("RegSetKeyValueW for \"Type\" returned error code: %d \n", status);
+        return 1;
+    }
+
+    RegCloseKey(key);
+
 
     HANDLE hDevice = CreateFile(L"\\\\.\\STKE", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
     if (hDevice == INVALID_HANDLE_VALUE)
