@@ -133,6 +133,9 @@
   <ItemGroup>
     <ClCompile Include="STKE_user.c" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="STKE_user.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

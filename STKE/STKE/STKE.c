@@ -61,7 +61,7 @@ NTSTATUS CompleteIrp(PIRP Irp, NTSTATUS status , ULONG_PTR info)
 NTSTATUS stkeCreateClose(PDEVICE_OBJECT DeviceObject, PIRP Irp) 
 {
 	UNREFERENCED_PARAMETER(DeviceObject);
-	NTSTATUS status = STATUS_NOT_SUPPORTED;
+	NTSTATUS status = STATUS_SUCCESS;
 	return CompleteIrp(Irp, status, 0);
 }
 

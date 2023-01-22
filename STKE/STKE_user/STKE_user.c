@@ -9,6 +9,8 @@ This program is used to interact with its corresponding kernel driver.
 #include <strsafe.h>
 #include <Shlwapi.h>
 
+#include "STKE_user.h"
+
 // To ensure correct resolution of symbols, add Psapi.lib to TARGETLIBS
 // and compile with -DPSAPI_VERSION=1
 
@@ -226,15 +228,15 @@ int loadDriver()
 
     HKEY key;
     DWORD keyOptions = REG_OPTION_VOLATILE;
-    WCHAR subKey[43];
+    WCHAR subKey[44];
     ZeroMemory(subKey, sizeof(subKey));
-    if (FAILED(StringCchCopyW(subKey, 43, L"SYSTEM\\CurrentControlSet\\Services\\")))
+    if (FAILED(StringCchCopyW(subKey, 44, L"SYSTEM\\CurrentControlSet\\Services\\")))
     {
-        return Error(L"String copy failed.\n");
+        return Error(L"String copy");
     }
-    if (FAILED(StringCchCatW(subKey, 43, driverName)))
+    if (FAILED(StringCchCatW(subKey, 44, driverName)))
     {
-        return Error(L"Subkey and driver name concatenation failed.\n");
+        return Error(L"Subkey and driver name concatenation");
     }
     printf("Registry subkey will be set to: %ws\n", subKey);
 
@@ -246,11 +248,11 @@ int loadDriver()
     ZeroMemory(keyData, sizeof(keyData));
     if (FAILED(StringCchCopyW(keyData, (MAX_PATH + 5), L"\\??\\")))
     {
-        return Error(L"String copy failed.\n");
+        return Error(L"String copy");
     }
     if (FAILED(StringCchCatW(keyData, (MAX_PATH + 5), regPath)))
     {
-        return Error(L"Global root and regPath concatenation failed.\n");
+        return Error(L"Global root and regPath concatenation");
     }
     printf("Registry key \"ImagePath\" will be set to: %ws\n", keyData);
 
@@ -264,7 +266,7 @@ int loadDriver()
         return 1;
     }
 
-    status = RegSetKeyValueW(key, NULL, keyValue1, REG_SZ, keyData, sizeof(keyData));
+    status = RegSetKeyValueW(key, NULL, keyValue1, REG_SZ, keyData, ((wcslen(keyData) + 1) * sizeof(WCHAR)));
     if (status != ERROR_SUCCESS)
     {
         printf("RegSetKeyValueW for \"ImagePath\" returned error code: %d \n", status);
@@ -280,14 +282,26 @@ int loadDriver()
 
     RegCloseKey(key);
 
+    WCHAR full_reg_path[63];
+    ZeroMemory(full_reg_path, sizeof(full_reg_path));
+    StringCchCopyW(full_reg_path, 63, L"\\registry\\machine\\");
+    StringCchCatW(full_reg_path, 63, subKey);
 
     HANDLE hDevice = CreateFile(L"\\\\.\\STKE", GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
     if (hDevice == INVALID_HANDLE_VALUE)
     {
-        return Error(L"Failed to open device.\n");
+        return Error(L"CreatFile");
     }
 
+    DWORD bytesReturned;
+    BOOL success = DeviceIoControl(hDevice, IOCTL_STKE_LOAD_DRIVER, full_reg_path, (DWORD) (wcslen(full_reg_path) * sizeof(WCHAR)), NULL, 0, &bytesReturned, NULL);
 
+    if (!success)
+    {
+        return Error(L"DeviceIoControl");
+    }
+
+    printf("Driver should now be successfully loaded.");
 
     return 0;
 }
