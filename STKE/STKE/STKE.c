@@ -1,7 +1,3 @@
-/* 
-This driver is not used for anything yet.
-*/
-
 #include <ntddk.h>
 #include <stdio.h>
 #include "STKE.h"
@@ -26,8 +22,8 @@ DriverEntry(PDRIVER_OBJECT DriverObject, PUNICODE_STRING RegistryPath)
 	DriverObject->MajorFunction[IRP_MJ_DEVICE_CONTROL] = stkeDeviceControl;
 
 	PDEVICE_OBJECT DeviceObject = NULL;
-	auto status = STATUS_SUCCESS;
-	auto symLinkCreated = FALSE;
+	NTSTATUS status = STATUS_SUCCESS;
+	BOOLEAN symLinkCreated = FALSE;
 
 	do 
 	{
@@ -83,7 +79,7 @@ NTSTATUS stkeDeviceControl(PDEVICE_OBJECT DeviceObject, PIRP Irp)
 		// TODO: implement ZwLoadDriver
 		UNICODE_STRING driverName;
 		RtlInitUnicodeString(&driverName, Irp->AssociatedIrp.SystemBuffer);
-
+		__debugbreak();
 		NTSTATUS status = ZwLoadDriver(&driverName);
 		return CompleteIrp(Irp, status, 0);
 	}

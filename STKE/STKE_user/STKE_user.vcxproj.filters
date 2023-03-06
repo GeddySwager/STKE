@@ -18,9 +18,27 @@
     <ClCompile Include="STKE_user.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="user_input.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="loading.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="list_info.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="STKE_user.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="user_input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="loading.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="list_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

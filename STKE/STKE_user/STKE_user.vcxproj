@@ -131,10 +131,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="list_info.c" />
+    <ClCompile Include="loading.c" />
     <ClCompile Include="STKE_user.c" />
+    <ClCompile Include="user_input.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="list_info.h" />
+    <ClInclude Include="loading.h" />
     <ClInclude Include="STKE_user.h" />
+    <ClInclude Include="user_input.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
